@@ -1,0 +1,32 @@
+@import "tailwindcss";
+
+/* Tailwind v4 theme tokens used across the app.
+   These enable utilities like `bg-primary-600`, `from-dark-900`, etc. */
+@theme {
+  --color-primary-100: #dbeafe;
+  --color-primary-200: #bfdbfe;
+  --color-primary-300: #93c5fd;
+  --color-primary-400: #60a5fa;
+  --color-primary-500: #3b82f6;
+  --color-primary-600: #2563eb;
+  --color-primary-700: #1d4ed8;
+  --color-primary-900: #1e3a8a;
+
+  --color-dark-800: #1f2937;
+  --color-dark-900: #0b1220;
+}
+
+@layer components {
+  .btn-primary {
+    @apply inline-flex items-center justify-center rounded-lg bg-primary-600 px-4 py-2 font-semibold text-white transition hover:bg-primary-500;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center rounded-lg border border-primary-300/50 px-4 py-2 font-semibold text-primary-700 transition hover:bg-primary-100;
+  }
+
+  .card {
+    @apply rounded-2xl border border-gray-200 bg-white;
+  }
+}
+
