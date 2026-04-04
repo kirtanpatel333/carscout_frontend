@@ -1,13 +1,15 @@
 import React, { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { toast } from 'react-toastify'
 import axios from 'axios'
+import { FaCarSide, FaEye, FaEyeSlash } from "react-icons/fa"
 import { normalizeRole, saveAuthSession } from '../utils/auth'
 
 export const Login = () => {
   const navigate = useNavigate()
   const [showPassword, setShowPassword] = useState(false)
+  const [loading, setLoading] = useState(false)
 
   const {
     register,
@@ -18,99 +20,78 @@ export const Login = () => {
       email: '',
       password: ''
     },
-    mode: 'onBlur'
+    mode: 'onSubmit'
   })
 
-const submitHandler = async (data) => {
-  try {
+  const submitHandler = async (data) => {
+    setLoading(true)
+    try {
+      const res = await axios.post("http://localhost:4444/user/login", data)
 
-    const res = await axios.post("http://localhost:4444/user/login", data)
+      if (res.status === 200) {
+        toast.success("Login successful!")
 
-    console.log("response...", res.data)
+        const rawUser = res.data.user || res.data.data?.user || res.data.data || {}
+        const role = normalizeRole(res.data.role || rawUser.role)
+        const fallbackName = String(data.email || "").split("@")[0] || "User"
 
-    if (res.status === 200) {
+        const safeUser = {
+          ...rawUser,
+          name: rawUser.name || rawUser.fullName || rawUser.username || rawUser.firstName || fallbackName,
+          email: rawUser.email || data.email,
+          profileImage: rawUser.profileImage || rawUser.profilePicture || rawUser.avatar || rawUser.photo || "",
+        }
 
-      toast.success("Login successful!")
+        saveAuthSession({
+          role,
+          token: res.data.token || res.data.data?.token,
+          user: safeUser,
+        })
 
-      const rawUser =
-        res.data.user ||
-        res.data.profile ||
-        res.data.data?.user ||
-        res.data.data ||
-        {}
-
-      const role = normalizeRole(res.data.role || rawUser.role)
-      const fallbackName = String(data.email || "").split("@")[0] || "User"
-
-      const safeUser = {
-        ...rawUser,
-        name:
-          rawUser.name ||
-          rawUser.fullName ||
-          rawUser.username ||
-          rawUser.firstName ||
-          fallbackName,
-        email: rawUser.email || data.email,
-        profileImage:
-          rawUser.profileImage ||
-          rawUser.profilePicture ||
-          rawUser.avatar ||
-          rawUser.photo ||
-          "",
+        if (role === "admin") {
+          navigate("/adminpanel")
+        } else if (role === "seller" || role === "buyer" || role === "user") {
+          navigate("/")
+        } else {
+          toast.error("Invalid Role")
+        }
       }
-
-      saveAuthSession({
-        role,
-        token: res.data.token || res.data.accessToken || res.data.jwt,
-        user: safeUser,
-      })
-
-      if (role === "admin") {
-        navigate("/adminpanel")
-      }
-      else if (role === "seller" || role === "buyer" || role === "user") {
-        navigate("/")
-      }
-      else {
-        toast.error("Invalid Role")
-        navigate("/login")
-      }
-
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Invalid credentials. Please try again.")
+    } finally {
+      setLoading(false)
     }
-
-  } catch (error) {
-
-    console.log("login error...", error)
-    toast.error("Invalid credentials. Please try again.")
-
   }
-}
 
   return (
-    <div className="min-h-screen from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center px-4 py-8">
-      {/* Background decoration */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse delay-2000"></div>
+    <div className="min-h-screen bg-bg-base flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+      <div className="sm:mx-auto sm:w-full sm:max-w-md">
+        <Link to="/" className="flex justify-center items-center gap-2 text-2xl font-bold tracking-tight text-text-main group">
+          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary-600 text-white shadow-md transition group-hover:bg-primary-500">
+            <FaCarSide className="text-xl" />
+          </span>
+          <span>CarScout</span>
+        </Link>
+        <h2 className="mt-6 text-center text-2xl font-bold tracking-tight text-text-main">
+          Sign in to your account
+        </h2>
+        <p className="mt-2 text-center text-sm text-text-muted">
+          Don't have an account?{' '}
+          <Link to="/signup" className="font-semibold text-primary-600 hover:text-primary-500 transition-colors">
+            Start for free
+          </Link>
+        </p>
       </div>
 
-      {/* Login Card */}
-      <div className="relative w-full max-w-md">
-        <div className="bg-slate-800 rounded-2xl shadow-2xl border border-slate-700 p-8 backdrop-blur-sm">
-          {/* Header */}
-          <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-white mb-2">Welcome Back</h1>
-            <p className="text-slate-400">Sign in to your Car Scout account</p>
-          </div>
-
-          {/* Form */}
-          <form onSubmit={handleSubmit(submitHandler)} className="space-y-5">
-            {/* Email Field */}
+      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-[440px]">
+        <div className="bg-bg-surface px-6 py-8 sm:rounded-2xl sm:px-10 border border-border-subtle shadow-sm">
+          <form className="space-y-5" onSubmit={handleSubmit(submitHandler)}>
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">Email Address</label>
-              <div className="relative">
+              <label className="block text-sm font-medium text-text-main">Email address</label>
+              <div className="mt-1.5">
                 <input
                   type="email"
+                  spellCheck="false"
                   placeholder="you@example.com"
                   {...register('email', {
                     required: 'Email is required',
@@ -119,26 +100,24 @@ const submitHandler = async (data) => {
                       message: 'Invalid email address'
                     }
                   })}
-                  className={`w-full px-4 py-3 rounded-lg bg-slate-700 border transition-all focus:outline-none text-white placeholder-slate-500 ${errors.email
-                    ? 'border-red-500 focus:border-red-500 focus:bg-slate-700'
-                    : 'border-slate-600 focus:border-blue-500 focus:bg-slate-700'
-                    }`}
+                  className={`input-field ${errors.email ? '!border-red-500 !ring-red-500' : ''}`}
                 />
               </div>
               {errors.email && (
-                <p className="text-red-400 text-sm mt-1.5">{errors.email.message}</p>
+                 <p className="text-red-500 text-sm mt-1.5 font-medium">{errors.email.message}</p>
               )}
             </div>
 
-            {/* Password Field */}
             <div>
-              <div className="flex justify-between items-center mb-2">
-                <label className="block text-sm font-medium text-slate-300">Password</label>
-                <a href="#" className="text-xs text-blue-400 hover:text-blue-300 transition">
-                  Forgot?
-                </a>
+              <div className="flex items-center justify-between">
+                <label className="block text-sm font-medium text-text-main">Password</label>
+                <div className="text-sm">
+                  <a href="#" className="font-medium text-primary-600 hover:text-primary-500 transition-colors">
+                    Forgot password?
+                  </a>
+                </div>
               </div>
-              <div className="relative">
+              <div className="mt-1.5 relative">
                 <input
                   type={showPassword ? 'text' : 'password'}
                   placeholder="••••••••"
@@ -146,74 +125,47 @@ const submitHandler = async (data) => {
                     required: 'Password is required',
                     minLength: {
                       value: 6,
-                      message: 'Password must be at least 6 characters'
+                      message: 'Must be at least 6 characters'
                     }
                   })}
-                  className={`w-full px-4 py-3 rounded-lg bg-slate-700 border transition-all focus:outline-none text-white placeholder-slate-500 ${errors.password
-                    ? 'border-red-500 focus:border-red-500 focus:bg-slate-700'
-                    : 'border-slate-600 focus:border-blue-500 focus:bg-slate-700'
-                    }`}
+                  className={`input-field pr-12 ${errors.password ? '!border-red-500 !ring-red-500' : ''}`}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-3 text-slate-400 hover:text-slate-300 transition"
+                  className="absolute inset-y-0 right-0 flex items-center pr-3 text-text-muted hover:text-text-main transition-colors"
                 >
-                  {showPassword ? '👁️' : '👁️‍🗨️'}
+                  {showPassword ? <FaEyeSlash className="h-5 w-5" /> : <FaEye className="h-5 w-5" />}
                 </button>
               </div>
               {errors.password && (
-                <p className="text-red-400 text-sm mt-1.5">{errors.password.message}</p>
+                 <p className="text-red-500 text-sm mt-1.5 font-medium">{errors.password.message}</p>
               )}
             </div>
 
-            {/* Remember Me */}
             <div className="flex items-center">
               <input
+                id="remember-me"
                 type="checkbox"
-                id="remember"
-                className="w-4 h-4 rounded bg-slate-700 border-slate-600 text-blue-500 focus:ring-2 focus:ring-blue-500 cursor-pointer"
+                className="h-4 w-4 rounded border-border-subtle bg-bg-surface text-primary-600 focus:ring-primary-600"
               />
-              <label htmlFor="remember" className="ml-2 text-sm text-slate-400 cursor-pointer">
-                Remember me
+              <label htmlFor="remember-me" className="ml-2 block text-sm text-text-muted select-none">
+                Keep me signed in
               </label>
             </div>
 
-            {/* Submit Button */}
-            <button
-              type="submit"
-              className="w-full from-blue-600 to-purple-600 text-white py-3 rounded-lg font-semibold hover:from-blue-700 hover:to-purple-700 transition-all duration-200 transform hover:scale-105 active:scale-95 shadow-lg"
-            >
-              Sign In
-            </button>
+            <div>
+              <button
+                type="submit"
+                disabled={loading}
+                className="btn-primary w-full text-base py-3 mt-2"
+              >
+                {loading ? 'Signing in...' : 'Sign In'}
+              </button>
+            </div>
           </form>
 
-          {/* Divider */}
-          <div className="relative my-6">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-slate-600"></div>
-            </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-slate-800 text-slate-400">or</span>
-            </div>
-          </div>
-
-          {/* Footer */}
-          <p className="text-center text-slate-400 text-sm">
-            Don't have an account?
-            <button
-              onClick={() => navigate('/signup')}
-              className="text-blue-400 hover:text-blue-300 font-medium ml-1 transition"
-            >
-              Create one
-            </button>
-          </p>
         </div>
-
-        {/* Security Info */}
-        <p className="text-center text-slate-500 text-xs mt-4">
-          🔒 Your data is secure and encrypted
-        </p>
       </div>
     </div>
   )

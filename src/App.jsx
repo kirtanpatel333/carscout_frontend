@@ -2,13 +2,12 @@ import { Slide, ToastContainer } from "react-toastify"
 import AppRouter from "./router/AppRouter"
 import axios from "axios"
 import { NotificationProvider } from "./context/NotificationContext"
+import { ThemeProvider } from "./context/ThemeContext"
 
 function App() {
 
- //  axios.defaults.baseURL = "http://localhost:5555"
-
   return (
-    <>
+    <ThemeProvider>
       <NotificationProvider>
         <AppRouter></AppRouter>
       </NotificationProvider>
@@ -22,10 +21,10 @@ function App() {
         pauseOnFocusLoss
         draggable
         pauseOnHover
-        theme="dark"
+        theme="colored"
         transition={Slide}
       />
-    </>
+    </ThemeProvider>
   )
 }
 

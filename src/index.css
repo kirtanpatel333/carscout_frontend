@@ -1,32 +1,68 @@
 @import "tailwindcss";
 
-/* Tailwind v4 theme tokens used across the app.
-   These enable utilities like `bg-primary-600`, `from-dark-900`, etc. */
-@theme {
-  --color-primary-100: #dbeafe;
-  --color-primary-200: #bfdbfe;
-  --color-primary-300: #93c5fd;
-  --color-primary-400: #60a5fa;
-  --color-primary-500: #3b82f6;
-  --color-primary-600: #2563eb;
-  --color-primary-700: #1d4ed8;
-  --color-primary-900: #1e3a8a;
+/* Allow tracking .dark class for dark: utility prefixes */
+@custom-variant dark (&:is(.dark *));
 
-  --color-dark-800: #1f2937;
-  --color-dark-900: #0b1220;
+@theme {
+  --color-primary-50: #eef2ff;
+  --color-primary-100: #e0e7ff;
+  --color-primary-200: #c7d2fe;
+  --color-primary-300: #a5b4fc;
+  --color-primary-400: #818cf8;
+  --color-primary-500: #6366f1;
+  --color-primary-600: #4f46e5;
+  --color-primary-700: #4338ca;
+  --color-primary-800: #3730a3;
+  --color-primary-900: #312e81;
+
+  /* Custom variables mapped to UI */
+  --color-bg-base: var(--bg-color);
+  --color-bg-surface: var(--bg-surface-color);
+  --color-border-subtle: var(--border-color);
+  --color-text-main: var(--text-color);
+  --color-text-muted: var(--text-color-muted);
+}
+
+@layer base {
+  :root {
+    --bg-color: #f4f4f5; /* zinc-100 */
+    --bg-surface-color: #ffffff;
+    --border-color: #e4e4e7; /* zinc-200 */
+    --text-color: #09090b; /* zinc-950 */
+    --text-color-muted: #52525b; /* zinc-600 */
+  }
+
+  .dark {
+    --bg-color: #09090b; /* zinc-950 */
+    --bg-surface-color: #18181b; /* zinc-900 */
+    --border-color: #27272a; /* zinc-800 */
+    --text-color: #ffffff;
+    --text-color-muted: #a1a1aa; /* zinc-400 */
+  }
+
+  html {
+    @apply scroll-smooth;
+  }
+  
+  body {
+    @apply bg-bg-base text-text-main antialiased selection:bg-primary-500 selection:text-white transition-colors duration-300 min-h-screen;
+  }
 }
 
 @layer components {
   .btn-primary {
-    @apply inline-flex items-center justify-center rounded-lg bg-primary-600 px-4 py-2 font-semibold text-white transition hover:bg-primary-500;
+    @apply inline-flex items-center justify-center gap-2 rounded-xl bg-primary-600 px-5 py-2.5 font-semibold text-white transition hover:bg-primary-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600 disabled:opacity-50 disabled:pointer-events-none shadow-sm;
   }
 
   .btn-secondary {
-    @apply inline-flex items-center justify-center rounded-lg border border-primary-300/50 px-4 py-2 font-semibold text-primary-700 transition hover:bg-primary-100;
+    @apply inline-flex items-center justify-center gap-2 rounded-xl border border-border-subtle bg-bg-surface px-5 py-2.5 font-semibold text-text-main transition hover:bg-zinc-100 dark:hover:bg-zinc-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-500 shadow-sm disabled:opacity-50 disabled:pointer-events-none;
   }
 
-  .card {
-    @apply rounded-2xl border border-gray-200 bg-white;
+  .input-field {
+    @apply w-full rounded-xl border border-border-subtle bg-bg-surface px-4 py-3 text-text-main placeholder-text-muted transition focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 shadow-sm appearance-none;
+  }
+
+  .card-styled {
+    @apply rounded-2xl border border-border-subtle bg-bg-surface shadow-sm overflow-hidden;
   }
 }
-
