@@ -266,7 +266,7 @@ const Home = () => {
                 <div className="relative h-56 overflow-hidden bg-zinc-200 dark:bg-zinc-800">
                    {/* Placeholder Image using Unsplash */}
                   <img
-                    src="https://images.unsplash.com/photo-1494976388531-d1058494cdd8?auto=format&fit=crop&w=900&q=80"
+                    src={car.image || "https://images.unsplash.com/photo-1494976388531-d1058494cdd8?auto=format&fit=crop&w=900&q=80"}
                     alt={`${car.brand} ${car.model}`}
                     className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                   />
