@@ -1,11 +1,12 @@
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
-import { clearAuthSession, getAuthProfile } from "../../utils/auth";
+import { clearAuthSession, getAuthProfile, isAuthenticated } from "../../utils/auth";
 import { FaCarSide } from "react-icons/fa";
 import { NotificationBell } from "../notifications/NotificationBell";
 
 export const CustomerNavbar = () => {
   const navigate = useNavigate();
   const profile = getAuthProfile();
+  const isLoggedIn = isAuthenticated();
 
   const handleLogout = () => {
     clearAuthSession();
@@ -30,21 +31,34 @@ export const CustomerNavbar = () => {
             </span>
           </div>
 
-          <div className="flex items-center gap-2 ">
-            <NavLink to="/notifications" className={(args) => `${navStyle(args)} ${navBase}`}>
-              Notifications
-            </NavLink>
-            <NotificationBell />
-            <div className="hidden sm:block rounded-full border border-cyan-200 px-3 py-1.5 text-sm text-slate-700 bg-cyan-50">
-              {profile.name}
-            </div>
+          <div className="flex items-center gap-2">
+            {isLoggedIn ? (
+              <>
+                <NavLink to="/notifications" className={(args) => `${navStyle(args)} ${navBase}`}>
+                  Notifications
+                </NavLink>
+                <NotificationBell />
+                <div className="hidden sm:block rounded-full border border-cyan-200 px-3 py-1.5 text-sm text-slate-700 bg-cyan-50">
+                  {profile.name}
+                </div>
 
-            <button
-              onClick={handleLogout}
-              className="bg-rose-600 text-white px-4 py-2 rounded-full hover:bg-rose-700 text-sm font-semibold"
-            >
-              Logout
-            </button>
+                <button
+                  onClick={handleLogout}
+                  className="bg-rose-600 text-white px-4 py-2 rounded-full hover:bg-rose-700 text-sm font-semibold"
+                >
+                  Logout
+                </button>
+              </>
+            ) : (
+              <>
+                <NavLink to="/login" className="bg-cyan-600 text-white px-4 py-2 rounded-full hover:bg-cyan-700 text-sm font-semibold">
+                  Login
+                </NavLink>
+                <NavLink to="/signup" className="border border-cyan-600 text-cyan-600 px-4 py-2 rounded-full hover:bg-cyan-50 text-sm font-semibold">
+                  Sign Up
+                </NavLink>
+              </>
+            )}
           </div>
         </div>
       </nav>

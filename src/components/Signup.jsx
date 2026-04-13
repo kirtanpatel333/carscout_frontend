@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
-import axios from "axios";
+import apiClient from "../utils/axios";
 import { toast } from "react-toastify";
 import { FaCarSide, FaEye, FaEyeSlash } from "react-icons/fa";
 
@@ -20,7 +20,7 @@ export const Signup = () => {
   const submitHandler = async (data) => {
     setLoading(true);
     try {
-      const res = await axios.post("http://localhost:4444/user/register", {
+      const res = await apiClient.post("/user/register", {
         firstname: data.firstname,
         lastname: data.lastname,
         email: data.email,

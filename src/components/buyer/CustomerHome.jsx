@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import axios from "axios";
+import apiClient from "../../utils/axios";
 import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
 import { FaCarSide, FaTag } from "react-icons/fa";
@@ -68,8 +68,9 @@ export const CustomerHome = () => {
   const fetchCars = async () => {
     setLoading(true);
     try {
-      const res = await axios.get("http://localhost:4444/car/all");
-      setCars(Array.isArray(res.data) ? res.data : []);
+      const res = await apiClient.get("/car/all");
+      const carsData = res.data?.data;
+      setCars(Array.isArray(carsData) ? carsData : []);
       setError("");
     } catch (err) {
       setError(err.response?.data?.message || "Failed to load buyer inventory");
@@ -177,7 +178,7 @@ export const CustomerHome = () => {
         email: inquiryForm.email,
         message: `[${selectedCar.brand} ${selectedCar.model}] ${inquiryForm.message}`,
       };
-      await axios.post("http://localhost:4444/inquiry/create", payload);
+      await apiClient.post("/inquiry/create", payload);
       toast.success("Inquiry sent successfully");
       setInquiryForm((prev) => ({ ...prev, message: "" }));
       closeActionModal();
@@ -207,7 +208,7 @@ export const CustomerHome = () => {
         location: testDriveForm.location,
         status: "pending",
       };
-      await axios.post("http://localhost:4444/testdrive/add", payload);
+      await apiClient.post("/testdrive/add", payload);
       toast.success("Test drive requested");
       fetchUnreadCount();
       setTestDriveForm({ date: "", location: "" });
@@ -237,7 +238,7 @@ export const CustomerHome = () => {
         rating: Number(reviewForm.rating),
         comment: reviewForm.comment,
       };
-      await axios.post("http://localhost:4444/reviews/add", payload);
+      await apiClient.post("/reviews/add", payload);
       toast.success("Review submitted");
       setReviewForm({ rating: "5", comment: "" });
       closeActionModal();

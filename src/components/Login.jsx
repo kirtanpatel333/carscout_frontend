@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { toast } from 'react-toastify'
-import axios from 'axios'
+import apiClient from '../utils/axios'
 import { FaCarSide, FaEye, FaEyeSlash } from "react-icons/fa"
 import { normalizeRole, saveAuthSession } from '../utils/auth'
 
@@ -26,7 +26,7 @@ export const Login = () => {
   const submitHandler = async (data) => {
     setLoading(true)
     try {
-      const res = await axios.post("http://localhost:4444/user/login", data)
+      const res = await apiClient.post("/user/login", data)
 
       if (res.status === 200) {
         toast.success("Login successful!")

@@ -17,7 +17,7 @@ import {
   FaMoneyBillWave,
 } from "react-icons/fa";
 import { Link } from "react-router-dom";
-import axios from "axios";
+import apiClient from "../../utils/axios";
 import UserNavbar from "../../components/UserNavbar";
 import { isAdminAuthenticated } from "../../utils/auth";
 import SellCarModel from "../../components/seller/SellCarModel";
@@ -46,36 +46,31 @@ const Home = () => {
       try {
         const [carsRes, summaryRes, messageRes, reviewRes, testDriveRes] =
           await Promise.allSettled([
-            axios.get("http://localhost:4444/car/all"),
-            axios.get("http://localhost:4444/admin/dashboard"),
-            axios.get("http://localhost:4444/message/all"),
-            axios.get("http://localhost:4444/reviews/all"),
-            axios.get("http://localhost:4444/testdrive/all"),
+            apiClient.get("/car/all"),
+            apiClient.get("/admin/dashboard"),
+            apiClient.get("/message/all"),
+            apiClient.get("/reviews/all"),
+            apiClient.get("/testdrive/all"),
           ]);
 
         if (carsRes.status === "fulfilled") {
-          setCars(Array.isArray(carsRes.value.data) ? carsRes.value.data : []);
+          const carsData = carsRes.value.data?.data;
+          setCars(Array.isArray(carsData) ? carsData : []);
         } else {
           setError("Unable to load cars right now");
         }
 
         const summaryData =
-          summaryRes.status === "fulfilled" ? summaryRes.value.data : {};
+          summaryRes.status === "fulfilled" ? (summaryRes.value.data?.data || {}) : {};
 
-        const messages =
-          messageRes.status === "fulfilled" && Array.isArray(messageRes.value.data)
-            ? messageRes.value.data.length
-            : 0;
+        const messagesData = messageRes.status === "fulfilled" ? messageRes.value.data?.data : [];
+        const messages = Array.isArray(messagesData) ? messagesData.length : 0;
 
-        const reviews =
-          reviewRes.status === "fulfilled" && Array.isArray(reviewRes.value.data)
-            ? reviewRes.value.data.length
-            : 0;
+        const reviewsData = reviewRes.status === "fulfilled" ? reviewRes.value.data?.data : [];
+        const reviews = Array.isArray(reviewsData) ? reviewsData.length : 0;
 
-        const testDrives =
-          testDriveRes.status === "fulfilled" && Array.isArray(testDriveRes.value.data)
-            ? testDriveRes.value.data.length
-            : 0;
+        const testDrivesData = testDriveRes.status === "fulfilled" ? testDriveRes.value.data?.data : [];
+        const testDrives = Array.isArray(testDrivesData) ? testDrivesData.length : 0;
 
         setPlatformStats({
           users: summaryData.users || 0,
